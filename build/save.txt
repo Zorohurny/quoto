@@ -1,0 +1,181 @@
+font-family: 'Barriecito', cursive;
+font-family: 'Bricolage Grotesque', sans-serif;
+font-family: 'Caveat', cursive;
+font-family: 'Courgette', cursive;
+font-family: 'Dosis', sans-serif;
+font-family: 'Josefin Sans', sans-serif;
+font-family: 'Josefin Slab', serif;
+lato
+font-family: 'Raleway', sans-serif;
+font-family: 'Roboto', sans-serif;
+font-family: 'Voltaire', sans-serif;
+
+import React, { useState } from 'react';
+import "../assets/css/Gradients.css"
+import "../assets/css/Post.css"
+import { ChromePicker } from 'react-color';
+import Navbar from '../Components/Navbar'
+import { motion } from "framer-motion";
+import html2canvas from "html2canvas";
+import { saveAs } from "file-saver";
+
+export default function Post() {
+  
+  const [backgroundColor, setBackgroundColor] = useState('black');
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('#000'); // Default color
+  const [selectedGradient, setSelectedGradient] = useState(null); // Selected gradient option
+  const [image, setImage] = useState(null);
+
+  const handleImageUpload = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  const fontOptions = [
+    { label: "Barriecito", value: "Barriecito, sans-serif" },
+    { label: "Bricolage Grotesque", value: "Bricolage Grotesque, serif" },
+    { label: "Caveat", value: "Caveat, serif" },
+    { label: "Courgette", value: "Courgette, monospace" },
+    { label: "Dosis", value: "Dosis, sans-serif" },
+    { label: "Josefin Sans", value: "Josefin Sans, sans-serif" },
+    { label: "Josefin Slab", value: "Josefin Slab, serif" },
+    { label: "Lato", value: "Lato, serif" },
+    { label: "Raleway", value: "Raleway, serif" },
+    { label: "Roboto", value: "Roboto, serif" },
+    { label: "Voltaire", value: "Voltaire, serif" },
+  ];
+
+  const [selectedFont, setSelectedFont] = useState(fontOptions[0].value);
+
+
+
+  const handleSolidColorChange = (color) => {
+    setBackgroundColor(color);
+    setSelectedGradient(null);
+  };
+
+  const handleGradientChange = (event) => {
+    const selectedOption = event.target.value;
+    setSelectedGradient(selectedOption);
+    setBackgroundColor('transparent');
+  };
+
+  const handleColorPickerClose = () => {
+    setShowColorPicker(false);
+  };
+
+  const handleDownload = () => {
+    const container = document.getElementById("my-container");
+
+    html2canvas(container, {
+        scale: 8, // Set scale to 25x for full HD resolution (1920x1080)
+        useCORS: true // Enable CORS to allow screenshot of external images
+    }).then(canvas => {
+        canvas.toBlob(blob => saveAs(blob, "download.png"));
+    });
+};
+
+
+
+  return (
+    <>
+      <Navbar></Navbar>
+
+      <div className='post-section'>
+        <motion.div
+          className="post-main"
+          initial={{ scale: 0 }}
+          animate={{ rotate: 360, scale: 1 }}
+          transition={{
+            type: "spring",
+            stiffness: 360,
+            damping: 10
+          }}>
+
+          <div id='my-container' className={`post-box ${selectedGradient ? `gradient-${selectedGradient}` : ''
+            }`}
+            style={{
+              backgroundColor: backgroundColor,
+            }} >
+            <div className="post-content">
+              <div className="post-con-top">
+
+                <div className="img-name">
+                  <div className="pic">
+                    {image && (
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt="Selected Image"
+                      />
+                    )}
+                    {/* <img src="https://placehold.co/400x400" alt="" srcset="" /> */}
+                  </div>
+                  <div className="username">
+                    <h2>Amit Gajare</h2>
+                    <p>@amitgajare_</p>
+                  </div>
+                </div>
+
+                <div className="p-logo">
+                  <img src="https://placehold.co/250x250" alt="" srcset="" />
+                </div>
+
+              </div>
+
+              <div className="post-con-bottom">
+                <p contentEditable={true} style={{ fontFamily: selectedFont, fontWeight: 'bold' }}>If Women Made You A Better Person, I Wouldn't Want To Know What You Were Like Before.</p>
+              </div>
+
+            </div>
+          </div>
+
+        </motion.div>
+
+      </div>
+      <div className="post-btns">
+        <button className='color-btn' onClick={() => setShowColorPicker(true)}>Solid Color</button>
+
+        <div className="gradient-dropdown">
+          <select
+            id="gradient-select"
+            value={selectedGradient || ''}
+            onChange={handleGradientChange}
+          >
+            <option value="">Select Gradient</option>
+            <option value="red-blue">Red-Blue Gradient</option>
+            <option value="yellow-orange">Yellow-Orange Gradient</option>
+            <option value="green-orange">green-Orange Gradient</option>
+            {/* Add more gradient options here */}
+          </select>
+        </div>
+
+        <div className="font-dropdown">
+          <select value={selectedFont} onChange={(e) => setSelectedFont(e.target.value)}>
+            {fontOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <input className='pic-user' type="file" onChange={handleImageUpload} />
+        <button className="download-btn" onClick={handleDownload}>Download</button>
+
+      </div>
+
+      {showColorPicker && (
+        <div className="color-picker">
+          <button className='close' onClick={handleColorPickerClose}>Confirm & Close</button>
+          <ChromePicker
+            color={selectedColor}
+            onChange={(color) => setSelectedColor(color.hex)}
+            onChangeComplete={(color) => handleSolidColorChange(color.hex)}
+          />
+
+        </div>
+      )}
+
+
+    </>
+  )
+}
